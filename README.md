@@ -31,7 +31,7 @@ To work on this task, use the “Labs on Demand Assessment Environment and DVD D
 Plan for and compose the sections of a real-world business report that can be created from the "Labs on Demand Assessment Environment and DVD Database" web link, and demonstrate the functionality of the supporting SQL code by doing the following:
 
 
-<h5> A.  Summarize one real-world written business report that can be created from the DVD Dataset from the “Labs on Demand Assessment Environment and DVD Database” attachment.</h5>
+<h4> A.  Summarize one real-world written business report that can be created from the DVD Dataset from the “Labs on Demand Assessment Environment and DVD Database” attachment.</h4>
 
 
 1.  Identify the specific fields that will be included in the detailed table and the summary table of the report.
@@ -47,24 +47,24 @@ Plan for and compose the sections of a real-world business report that can be cr
 6.  Explain how frequently your report should be refreshed to remain relevant to stakeholders.
 
 
-<h5> B.  Provide original code for function(s) in text format that perform the transformation(s) you identified in part A4.</h5>
+<h4> B.  Provide original code for function(s) in text format that perform the transformation(s) you identified in part A4.</h4>
 
 
-<h5> C.  Provide original SQL code in a text format that creates the detailed and summary tables to hold your report table sections.</h5>
+<h4> C.  Provide original SQL code in a text format that creates the detailed and summary tables to hold your report table sections.</h4>
 
 
-<h5> D.  Provide an original SQL query in a text format that will extract the raw data needed for the detailed section of your report from the source database.</h5>
+<h4> D.  Provide an original SQL query in a text format that will extract the raw data needed for the detailed section of your report from the source database.</h4>
 
 
-<h5> E.  Provide original SQL code in a text format that creates a trigger on the detailed table of the report that will continually update the summary table as data is added to the detailed table.</h5>
+<h4> E.  Provide original SQL code in a text format that creates a trigger on the detailed table of the report that will continually update the summary table as data is added to the detailed table.</h4>
 
 
-<h5> F.  Provide an original stored procedure in a text format that can be used to refresh the data in both the detailed table and summary table. The procedure should clear the contents of the detailed table and summary table and perform the raw data extraction from part D. </h5>
+<h4> F.  Provide an original stored procedure in a text format that can be used to refresh the data in both the detailed table and summary table. The procedure should clear the contents of the detailed table and summary table and perform the raw data extraction from part D. </h4>
 
 1.  Identify a relevant job scheduling tool that can be used to automate the stored procedure.
 
 
-<h6> G.  Provide a Panopto video recording that includes the presenter and a vocalized demonstration of the functionality of the code used for the analysis. </h6>
+<h5> G.  Provide a Panopto video recording that includes the presenter and a vocalized demonstration of the functionality of the code used for the analysis. </h5>
 
 
 Note: For instructions on how to access and use Panopto, use the "Panopto How-To Videos" web link provided below. To access Panopto's website, navigate to the web link titled "Panopto Access," and then choose to log in using the “WGU” option. If prompted, log in using your WGU student portal credentials, and then it will forward you to Panopto’s website.
@@ -73,7 +73,7 @@ Note: For instructions on how to access and use Panopto, use the "Panopto How-To
 To submit your recording, upload it to the Panopto drop box titled “Advanced Data Management D191 | D326 (Student Creators) [assignments].” Once the recording has been uploaded and processed in Panopto's system, retrieve the URL of the recording from Panopto and copy and paste it into the Links option. Upload the remaining task requirements using the Attachments option.
 
 
-<h6> H.  Acknowledge all utilized sources, including any sources of third-party code, using in-text citations and references. If no sources are used, clearly declare that no sources were used to support your submission. </h6>
+<h5> H.  Acknowledge all utilized sources, including any sources of third-party code, using in-text citations and references. If no sources are used, clearly declare that no sources were used to support your submission. </h5>
 
 
-<h6> I.  Demonstrate professional communication in the content and presentation of your submission. </h6>
+<h5> I.  Demonstrate professional communication in the content and presentation of your submission. </h5>
