@@ -1,0 +1,205 @@
+---------------Business Question: Which customers have the most visits and rentals at the DVD rental store. ----------------------------------------
+
+
+----------------------------- Section B. Transformation ---------------------------------------------
+/* 
+The code below performs the transformation identified in Part A4, 
+which is to combine the first name and last name fields into a single field 
+and insert the transformed data into the summary table. It also refreshes the 
+summary table whenever new data is inserted into the detailed table.
+*/
+
+-- Drop the existing trigger that depends on the summary_refresh_function function
+DROP TRIGGER IF EXISTS summary_refresh ON detailed;
+
+-- Drop the existing function if it exists, to avoid duplicates
+DROP FUNCTION IF EXISTS summary_refresh_function();
+
+-- Create the summary_refresh_function, which is a trigger function
+CREATE FUNCTION summary_refresh_function()
+RETURNS TRIGGER  -- This function returns a trigger, meaning it is fired by certain events like INSERT or UPDATE
+LANGUAGE plpgsql  -- The function is written in PL/pgSQL
+AS $$
+BEGIN
+    -- Empties the summary table by deleting all its records
+    DELETE FROM summary;
+---------------------------------------------------------------------------------------------------------------------
+    /* 
+    Insert the aggregated data into the summary table by combining 
+    the last name and first name into a single full name field. 
+    It counts how many rentals each customer has made, and groups 
+    the data by customer_id, last_name, first_name, and email.
+    */
+    INSERT INTO summary (full_name, email, customer_count)
+    SELECT
+        concat_ws(' ', last_name, first_name) AS full_name,  -- Concatenates first and last names into full name
+        email,
+        COUNT(customer_id) AS customer_count  -- Counts the number of rentals per customer
+    FROM detailed
+    GROUP BY customer_id, last_name, first_name, email  -- Groups the data by customer for aggregation
+    --HAVING COUNT(customer_id) > 20  -- (Optional) If you want to limit it to customers with more than 20 rentals
+    ORDER BY customer_count DESC  -- Orders the results by the customer_count in descending order
+    LIMIT 100;  -- Limits the result to the top 100 customers with the highest rental counts
+
+    RETURN NEW;  -- This is needed for triggers that fire on data modifications (like INSERT)
+END; 
+$$; -- End of the function, this will refresh the summary table with the new data from the detailed table
+
+------------------------------- Section C. Create Detailed Table ----------------------------------------------------
+
+/* 
+The code below creates an empty table titled 'detailed', 
+which will hold the data extracted in section D. It includes columns for 
+customer information, rental details, and return dates.
+*/
+
+-- Drop the 'detailed' table if it already exists to avoid conflicts when recreating it
+DROP TABLE IF EXISTS detailed;
+
+-- Create the 'detailed' table with the necessary columns
+CREATE TABLE detailed (
+    customer_id integer,        -- Holds the unique identifier for each customer
+    first_name varchar(50),     -- Holds the customer's first name, up to 50 characters
+    last_name varchar(50),      -- Holds the customer's last name, up to 50 characters
+    email varchar(100),         -- Stores the customer's email address, up to 100 characters
+    rental_id integer,          -- Stores the unique rental identifier for each rental
+    rental_date timestamp,      -- Stores the date and time the rental occurred
+    return_date timestamp       -- Stores the date and time the rental was returned
+);
+
+-- Detailed table was created successfully
+-- Verify the structure of the detailed table by selecting all columns (no data yet)
+SELECT * FROM detailed;
+
+
+------------------------------------ Section C. Create Summary Table ------------------------------------------
+
+/* 
+The code below creates an empty table titled 'summary', 
+which will store aggregated information from the 'detailed' table, 
+such as the full name of customers, their email, and the count 
+of their rental activity (customer_count).
+*/
+
+-- Drop the 'summary' table if it already exists to avoid conflicts when recreating it
+DROP TABLE IF EXISTS summary;
+
+-- Create the 'summary' table with the necessary columns for aggregated data
+CREATE TABLE summary (
+    full_name varchar(220),     -- Stores the full name of the customer, combining first and last name
+    email varchar(100),         -- Stores the customer's email address, up to 100 characters
+    customer_count integer      -- Stores the count of rentals made by the customer
+);
+
+-- Summary table was created successfully
+-- Verify the structure of the summary table by selecting all columns (no data yet)
+SELECT * FROM summary;
+
+------------------------------------ Section D. Extract Raw Data --------------------------------------------------------
+
+/* 
+The code below queries the raw data from the original database tables 
+'customer' and 'rental' and inserts this data into the 'detailed' table. 
+It combines the relevant customer information with the rental details 
+by joining the 'customer' and 'rental' tables based on the customer_id.
+*/
+
+-- Insert customer and rental data into the 'detailed' table
+INSERT INTO detailed (
+    customer_id,     -- Customer's unique identifier
+    first_name,      -- Customer's first name
+    last_name,       -- Customer's last name
+    email,           -- Customer's email address
+    rental_id,       -- Rental's unique identifier
+    rental_date,     -- Date when the rental was made
+    return_date      -- Date when the rental was returned
+)
+-- Select data from the customer and rental tables for insertion
+SELECT
+    c.customer_id, c.first_name, c.last_name, c.email,   -- Customer details
+    r.rental_id, r.rental_date, r.return_date            -- Rental details
+FROM rental AS r
+INNER JOIN customer AS c ON c.customer_id = r.customer_id;  -- Join the 'customer' and 'rental' tables by customer_id
+
+-- Display data to verify that insertion into the 'detailed' table was successful
+SELECT * FROM detailed;
+
+
+--------------------------------- Create a Trigger --------------------------------------------------------------------
+/* 
+The code below creates a trigger on the 'detailed' table. 
+This trigger will continually update the 'summary' table as new data is added 
+to the 'detailed' table. The trigger will execute the 'summary_refresh_function' 
+after every insert statement on the 'detailed' table.
+*/
+
+-- This trigger will execute the 'summary_refresh_function' after an insert on the 'detailed' table
+CREATE TRIGGER summary_refresh
+AFTER INSERT ON detailed  -- Trigger fires after each insert operation
+FOR EACH STATEMENT         -- Trigger fires once per insert statement, not per row
+EXECUTE PROCEDURE summary_refresh_function();  -- The trigger executes the 'summary_refresh_function'
+
+-- Verify that the trigger was created successfully
+SELECT trigger_name
+FROM information_schema.triggers
+WHERE event_object_table = 'detailed'  -- Check the 'detailed' table for triggers
+  AND trigger_name = 'summary_refresh';  -- Verify that the 'summary_refresh' trigger exists
+
+-- Insert test data into the 'detailed' table to test if the trigger works
+INSERT INTO detailed (customer_id, first_name, last_name, email, rental_id, rental_date, return_date)
+VALUES (2, 'Celeste', 'Catala', 'ccata13@wgu.edu', 1002, '2024-01-02', '2024-01-06');  -- Example row for testing
+
+-- Verify that the data was successfully added to the 'detailed' table by selecting the newly inserted row
+SELECT * FROM detailed
+WHERE customer_id = 2;  -- Check if the test row with customer_id = 2 was inserted
+
+--------------------------------- Stored Procedure --------------------------------------------------
+/* 
+Stored procedure is created to refresh the data in both the 'detailed' and 'summary' tables. 
+It clears the contents of the 'detailed' table and performs the raw data extraction 
+from the 'customer' and 'rental' tables. This ensures that the 'detailed' table is 
+updated with the most recent data. The 'summary' table will be automatically updated 
+due to the trigger associated with the 'detailed' table.
+*/
+
+-- Drop the stored procedure if it already exists to avoid conflicts when creating it again
+DROP PROCEDURE IF EXISTS refresh_tables();
+
+-- Create the 'refresh_tables' procedure to refresh the contents of the 'detailed' and 'summary' tables
+CREATE PROCEDURE refresh_tables()
+LANGUAGE plpgsql  -- Define the procedure using the PL/pgSQL language
+AS $$
+BEGIN 
+
+    -- Empty the contents of the 'detailed' table
+    DELETE FROM detailed;
+
+    /* 
+    Insert new data into the 'detailed' table by selecting 
+    customer and rental data from the 'customer' and 'rental' tables, 
+    joining them based on the 'customer_id'. This refreshes the detailed table.
+    */
+    INSERT INTO detailed (
+        customer_id,
+        first_name,
+        last_name,
+        email,
+        rental_id,
+        rental_date,
+        return_date
+    )
+    SELECT
+        c.customer_id, c.first_name, c.last_name, c.email,  -- Customer details
+        r.rental_id, r.rental_date, r.return_date            -- Rental details
+    FROM rental AS r
+    INNER JOIN customer AS c ON c.customer_id = r.customer_id;  -- Join the tables on customer_id
+
+END; 
+$$;
+
+-- Call the stored procedure to refresh the 'detailed' table with the latest data
+CALL refresh_tables();
+
+-- View the results by selecting from the 'detailed' table where customer_id = 2 to verify the refresh
+SELECT * FROM detailed
+WHERE customer_id = 2;  -- Verify the data for customer_id = 2
