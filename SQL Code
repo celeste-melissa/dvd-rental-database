@@ -125,7 +125,7 @@ INNER JOIN customer AS c ON c.customer_id = r.customer_id;  -- Join the 'custome
 SELECT * FROM detailed;
 
 
---------------------------------- Create a Trigger --------------------------------------------------------------------
+--------------------------------- Section E. Create a Trigger --------------------------------------------------------------------
 /* 
 The code below creates a trigger on the 'detailed' table. 
 This trigger will continually update the 'summary' table as new data is added 
@@ -153,7 +153,7 @@ VALUES (2, 'Celeste', 'Catala', 'ccata13@wgu.edu', 1002, '2024-01-02', '2024-01-
 SELECT * FROM detailed
 WHERE customer_id = 2;  -- Check if the test row with customer_id = 2 was inserted
 
---------------------------------- Stored Procedure --------------------------------------------------
+---------------------------------  Section F. Stored Procedure --------------------------------------------------
 /* 
 Stored procedure is created to refresh the data in both the 'detailed' and 'summary' tables. 
 It clears the contents of the 'detailed' table and performs the raw data extraction 
