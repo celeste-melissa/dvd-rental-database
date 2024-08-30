@@ -146,13 +146,18 @@ WHERE event_object_table = 'detailed'  -- Check the 'detailed' table for trigger
   AND trigger_name = 'summary_refresh';  -- Verify that the 'summary_refresh' trigger exists
 
 -- Insert test data into the 'detailed' table to test if the trigger works
+--INSERT INTO detailed (customer_id, first_name, last_name, email, rental_id, rental_date, return_date)
+-- We must specify inserting the rows 50 times so that we can view the row first in the summary table because of the DESC order 
 INSERT INTO detailed (customer_id, first_name, last_name, email, rental_id, rental_date, return_date)
-VALUES (2, 'Celeste', 'Catala', 'ccata13@wgu.edu', 1002, '2024-01-02', '2024-01-06');  -- Example row for testing
+SELECT 2, 'Celeste', 'Catala', 'cc@example.edu', 1003, '2024-01-03', '2024-01-10'
+FROM generate_series(1, 50);
 
--- Verify that the data was successfully added to the 'detailed' table by selecting the newly inserted row
+-- Verify that the data was successfully inserted into the 'detailed' table by selecting the newly inserted row where the customer_id = 2
 SELECT * FROM detailed
 WHERE customer_id = 2;  -- Check if the test row with customer_id = 2 was inserted
 
+-- Verify that the insertion is reflected within the summary table
+SELECT * FROM summary;
 ---------------------------------  Section F. Stored Procedure --------------------------------------------------
 /* 
 Stored procedure is created to refresh the data in both the 'detailed' and 'summary' tables. 
@@ -202,4 +207,7 @@ CALL refresh_tables();
 
 -- View the results by selecting from the 'detailed' table where customer_id = 2 to verify the refresh
 SELECT * FROM detailed
-WHERE customer_id = 2;  -- Verify the data for customer_id = 2
+WHERE customer_id = 2;  -- Verify that the table was refreshed where customer_id = 2
+
+--Confirm that the summary table has been refreshed and removed the data we inserted
+SELECT * FROM summary;
