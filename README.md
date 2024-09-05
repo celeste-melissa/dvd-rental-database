@@ -1,5 +1,5 @@
 <h1> Competencies </h1>
-<h2> 4037.4.1 : Writing Complex SQL Statements/h2>
+<h2> 4037.4.1 : Writing Complex SQL Statements</h2>
 
 The graduate writes complex SQL statements in order to implement functions, stored procedures, and triggers to prepare data sets for data analysis and manipulation.
 
